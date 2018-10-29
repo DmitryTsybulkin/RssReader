@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import rss.combinator.project.dto.MessageDTO;
+import rss.combinator.project.dto.PostDTO;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,9 +26,9 @@ public class JsonFormatterService {
         return null;
     }
 
-    public List<MessageDTO> fromJson(final File file) {
+    public List<PostDTO> fromJson(final File file) {
         try {
-            return mapper.readValue(file, new TypeReference<List<MessageDTO>>(){});
+            return mapper.readValue(file, new TypeReference<List<PostDTO>>(){});
         } catch (IOException e) {
             log.error("Error parsing json file.");
             e.getLocalizedMessage();

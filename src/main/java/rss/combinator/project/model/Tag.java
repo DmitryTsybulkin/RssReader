@@ -20,10 +20,10 @@ public class Tag {
     private Long id;
     @Column(name = "name")
     private String name;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "tag_id")
-    private List<Tape> tapes;
     @ManyToMany(mappedBy = "tags")
     private Set<User> user;
 
+    public Tag(String name) {
+        this.name = name;
+    }
 }

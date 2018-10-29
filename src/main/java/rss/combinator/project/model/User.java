@@ -17,7 +17,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
+    @Column(nullable = false, unique = true)
     private String username;
     @Column
     private String password;
@@ -26,5 +26,15 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags;
+    @Column
+    private String role;
+    @Column
+    private Boolean active;
 
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+        this.active = true;
+        this.role = "USER";
+    }
 }

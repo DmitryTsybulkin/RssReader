@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageDTO {
+public class PostDTO {
 
     private String title;
     private String date;

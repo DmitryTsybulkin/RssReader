@@ -28,14 +28,14 @@ public class RssParserTest {
 
     @After
     public void tearDown() throws Exception {
-        Files.deleteIfExists(Paths.get("downloads/hello.json"));
+        Files.deleteIfExists(Paths.get("downloads/news.json"));
         Files.deleteIfExists(Paths.get("downloads"));
     }
 
     @Test
     public void parseRss() throws Exception {
-        rssParser.parseRss("http://rss.cnn.com/rss/edition_europe.rss");
-        assertTrue(Files.exists(Paths.get("downloads/hello.json")));
+        rssParser.parseRss("http://rss.cnn.com/rss/edition_europe.rss", "news");
+        assertTrue(Files.exists(Paths.get("downloads/news.json")));
     }
 
     @Test

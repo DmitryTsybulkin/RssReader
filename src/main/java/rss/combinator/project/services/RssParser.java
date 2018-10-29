@@ -1,15 +1,14 @@
 package rss.combinator.project.services;
 
-import com.rometools.rome.feed.synd.SyndEntry;
-import com.rometools.rome.feed.synd.SyndFeed;
-import com.rometools.rome.io.SyndFeedInput;
-import com.rometools.rome.io.XmlReader;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import com.rometools.rome.io.XmlReader;
+import com.rometools.rome.io.SyndFeedInput;
+import rss.combinator.project.dto.PostDTO;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.feed.synd.SyndEntry;
 import org.springframework.stereotype.Service;
-import rss.combinator.project.dto.MessageDTO;
-import rss.combinator.project.services.JsonFormatterService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,7 +33,7 @@ public class RssParser {
         this.jsonFormatterService = jsonFormatterService;
     }
 
-    public void parseRss(final String link) {
+    public void parseRss(final String link, final String tag) {
         try {
             URL feedUrl = new URL(link);
             SyndFeedInput input = new SyndFeedInput();
@@ -51,7 +50,7 @@ public class RssParser {
             toJson.set(lastElement, toJson.get(lastElement).substring(0, toJson.get(lastElement).lastIndexOf(",")));
             toJson.add("]");
 
-            save(toJson);
+            save(toJson, tag);
 
         } catch (Exception e) {
             log.error("Error parsing rss/atom tape by link: " + link);
@@ -59,16 +58,16 @@ public class RssParser {
         }
     }
 
-    public MessageDTO toMessageDto(SyndEntry entry) {
-        return MessageDTO.builder()
+    public PostDTO toMessageDto(SyndEntry entry) {
+        return PostDTO.builder()
                 .title(entry.getTitle())
                 .date(entry.getPublishedDate() == null ? "unknown date" : entry.getPublishedDate().toString())
                 .link(entry.getLink())
                 .build();
     }
 
-    public void save(List<String> toJson) throws FileNotFoundException {
-        try (PrintWriter pw = new PrintWriter(new FileOutputStream(pathPrefix + "hello" + pathSuffix))) {
+    public synchronized void save(final List<String> toJson, final String filename) throws FileNotFoundException {
+        try (PrintWriter pw = new PrintWriter(new FileOutputStream(pathPrefix + filename + pathSuffix))) {
             for (String entry : toJson)
                 pw.println(entry);
         }
