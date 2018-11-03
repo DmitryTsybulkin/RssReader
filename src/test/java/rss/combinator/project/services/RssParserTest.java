@@ -26,8 +26,8 @@ public class RssParserTest {
     private final String testLink3 = "http://feeds.reuters.com/reuters/healthNews";
     private final String testLink4 = "http://feeds.reuters.com/reuters/scienceNews";
 
-    private final Path path1 = Paths.get("downloads/news.json");
-    private final Path path2 = Paths.get("downloads/health.json");
+    private final Path path1 = Paths.get("./downloads/news.json");
+    private final Path path2 = Paths.get("./downloads/health.json");
 
     @Autowired
     private RssParser rssParser;
