@@ -22,11 +22,11 @@ public class TagService {
     }
 
     @Transactional
-    public Tag create(Tag tag) {
-        if (tagRepository.findTagByName(tag.getName()).isPresent()) {
-            throw new EntryDuplicateException("Tag with name " + tag.getName() + " already exists");
+    public void create(String name) {
+        if (tagRepository.findTagByName(name).isPresent()) {
+            throw new EntryDuplicateException("Tag with name " + name + " already exists");
         }
-        return tagRepository.save(new Tag(tag.getName()));
+        tagRepository.save(new Tag(name));
     }
 
     @Transactional(readOnly = true)
@@ -41,9 +41,9 @@ public class TagService {
     }
 
     @Transactional
-    public void delete(Long id) {
-        Tag tag = tagRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Tag by id: " + id + " not found"));
+    public void delete(String name) {
+        Tag tag = tagRepository.findTagByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag by name: " + name + " not found"));
         tagRepository.delete(tag);
     }
 

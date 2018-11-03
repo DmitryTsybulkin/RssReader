@@ -12,10 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,44 +38,94 @@ public class RssParser {
         this.jsonFormatterService = jsonFormatterService;
     }
 
-    public void parseRss(final String link, final String tag) {
-        try {
-            URL feedUrl = new URL(link);
-            SyndFeedInput input = new SyndFeedInput();
-            SyndFeed feed = input.build(new XmlReader(feedUrl));
+    public void parseRss(Map<String, List<String>> entries) {
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-            List<String> toJson = new ArrayList<>();
-            toJson.add("[");
-            toJson.addAll(feed.getEntries().stream()
-                    .map(this::toMessageDto)
-                    .map(dto -> jsonFormatterService.toJson(dto) + ",")
-                    .collect(Collectors.toList()));
+        long start = System.currentTimeMillis();
+        List<String> json = new ArrayList<>();
+        entries.forEach((tag, links) -> {
 
-            int lastElement = toJson.size() - 1;
-            toJson.set(lastElement, toJson.get(lastElement).substring(0, toJson.get(lastElement).lastIndexOf(",")));
-            toJson.add("]");
+            links.forEach(link -> {
+                Callable<List<String>> callable = get(link);
+                if (callable == null) {
+                    throw new RuntimeException("Callable is null");
+                }
+                try {
 
-            save(toJson, tag);
+                    // TODO: 04.11.2018 придумать, что сделать с этим и чуть ниже костылями
+                    if (links.size() > 1 && links.indexOf(link) != 0 && links.indexOf(link) == links.size() - 1) {
+                        final String s = json.get(json.size() - 1);
+                        json.set(json.size() - 1, s.replace("]", ","));
+                    }
 
-        } catch (Exception e) {
-            log.error("Error parsing rss/atom tape by link: " + link);
+                    List<String> list = executorService.submit(callable).get();
+
+                    if (links.size() > 1 && links.indexOf(link) == links.size() - 1) {
+                        list.remove(0);
+                    }
+
+                    json.addAll(list);
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            });
+            saveToFile(tag, json);
+            json.clear();
+        });
+
+        System.out.println("Использовано времени: " + (System.currentTimeMillis() - start) + " миллисекунд");
+
+    }
+
+    private synchronized void saveToFile(String name, List<String> json) {
+        try (PrintWriter pw = new PrintWriter(new FileOutputStream(pathPrefix + name + pathSuffix))) {
+            for (String entry : json)
+                pw.println(entry);
+        } catch (FileNotFoundException e) {
             e.getLocalizedMessage();
         }
     }
 
-    public PostDTO toMessageDto(SyndEntry entry) {
+    public Boolean deleteFile(String name) {
+        try {
+            return Files.deleteIfExists(Paths.get(pathPrefix + name + pathSuffix));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private synchronized Callable<List<String>> get(String link) {
+        try {
+            URL url = new URL(link);
+            SyndFeedInput input = new SyndFeedInput();
+            SyndFeed feed = input.build(new XmlReader(url));
+
+            List<String> json = new ArrayList<>();
+
+            json.add("[");
+            json.addAll(feed.getEntries().stream()
+                    .map(this::toMessageDto)
+                    .map(dto -> jsonFormatterService.toJson(dto) + ",")
+                    .collect(Collectors.toList()));
+
+            int lastElement = json.size() - 1;
+            json.set(lastElement, json.get(lastElement).substring(0, json.get(lastElement).lastIndexOf(",")));
+            json.add("]");
+
+            return () -> json;
+        } catch (Exception e) {
+            e.getLocalizedMessage();
+        }
+        return null;
+    }
+
+    public synchronized PostDTO toMessageDto(SyndEntry entry) {
         return PostDTO.builder()
                 .title(entry.getTitle())
                 .date(entry.getPublishedDate() == null ? "unknown date" : entry.getPublishedDate().toString())
                 .link(entry.getLink())
                 .build();
-    }
-
-    public synchronized void save(final List<String> toJson, final String filename) throws FileNotFoundException {
-        try (PrintWriter pw = new PrintWriter(new FileOutputStream(pathPrefix + filename + pathSuffix))) {
-            for (String entry : toJson)
-                pw.println(entry);
-        }
     }
 
 }

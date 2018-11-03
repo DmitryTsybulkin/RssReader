@@ -5,27 +5,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import rss.combinator.project.dto.PostDTO;
-import rss.combinator.project.dto.TagDTO;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 public class ReaderController {
 
-    @GetMapping(value = "/all")
-    public Flux<PostDTO> getAllPosts() {
-        return null;
-    }
-
     @GetMapping(value = "/tags")
-    public Set<TagDTO> getTags() {
+    public Set<String> getTags() {
         return new HashSet<>();
     }
 
     @GetMapping(value = "/tape")
-    public Flux<PostDTO> getPosts(@RequestParam(name = "tag", required = true) Set<String> tags) {
-        return null;
+    public Flux<PostDTO> getPosts(@RequestParam(name = "from", required = false) String date,
+                                  @RequestParam(name = "tag", required = false) Set<String> tags) {
+        return Flux.fromIterable(new ArrayList<>());
     }
 
 }
