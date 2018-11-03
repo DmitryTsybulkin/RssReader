@@ -54,8 +54,6 @@ public class RssParserTest {
         assertTrue(Files.exists(path2));
         assertTrue(Files.isReadable(path1));
         assertTrue(Files.isReadable(path2));
-        assertEquals("application/json",Files.probeContentType(path1));
-        assertEquals("application/json",Files.probeContentType(path2));
     }
 
     @Test
