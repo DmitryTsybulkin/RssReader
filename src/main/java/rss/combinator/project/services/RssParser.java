@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -46,7 +43,7 @@ public class RssParser {
         entries.forEach((tag, links) -> {
 
             links.forEach(link -> {
-                Callable<List<String>> callable = get(link);
+                Callable<List<String>> callable = parseLink(link);
                 if (callable == null) {
                     throw new RuntimeException("Callable is null");
                 }
@@ -78,7 +75,7 @@ public class RssParser {
     }
 
     private synchronized void saveToFile(String name, List<String> json) {
-        try (PrintWriter pw = new PrintWriter(new FileOutputStream(pathPrefix + name + pathSuffix))) {
+        try (PrintWriter pw = new PrintWriter(new FileOutputStream(getAbsolute() + name + pathSuffix))) {
             for (String entry : json)
                 pw.println(entry);
         } catch (FileNotFoundException e) {
@@ -86,16 +83,26 @@ public class RssParser {
         }
     }
 
+    public String getAbsolute() {
+        return Paths.get(getClass()
+                .getResource("/")
+                .getPath()
+                .replaceFirst("/", ""))
+                .getParent().getParent()
+                .resolve(pathPrefix)
+                .toString();
+    }
+
     public Boolean deleteFile(String name) {
         try {
-            return Files.deleteIfExists(Paths.get(pathPrefix + name + pathSuffix));
+            return Files.deleteIfExists(Paths.get(getAbsolute() + name + pathSuffix));
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private synchronized Callable<List<String>> get(String link) {
+    private synchronized Callable<List<String>> parseLink(String link) {
         try {
             URL url = new URL(link);
             SyndFeedInput input = new SyndFeedInput();
@@ -105,7 +112,7 @@ public class RssParser {
 
             json.add("[");
             json.addAll(feed.getEntries().stream()
-                    .map(this::toMessageDto)
+                    .map(this::toPostDto)
                     .map(dto -> jsonFormatterService.toJson(dto) + ",")
                     .collect(Collectors.toList()));
 
@@ -120,7 +127,7 @@ public class RssParser {
         return null;
     }
 
-    public synchronized PostDTO toMessageDto(SyndEntry entry) {
+    public synchronized PostDTO toPostDto(SyndEntry entry) {
         return PostDTO.builder()
                 .title(entry.getTitle())
                 .date(entry.getPublishedDate() == null ? "unknown date" : entry.getPublishedDate().toString())

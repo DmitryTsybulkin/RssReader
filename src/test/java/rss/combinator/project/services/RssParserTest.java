@@ -11,9 +11,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -21,19 +23,21 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringRunner.class)
 public class RssParserTest {
 
+    @Autowired
+    private RssParser rssParser;
+
     private final String testLink1 = "http://feeds.reuters.com/reuters/companyNews";
     private final String testLink2 = "http://feeds.reuters.com/reuters/businessNews";
     private final String testLink3 = "http://feeds.reuters.com/reuters/healthNews";
     private final String testLink4 = "http://feeds.reuters.com/reuters/scienceNews";
 
-    private final Path path1 = Paths.get("./downloads/news.json");
-    private final Path path2 = Paths.get("./downloads/health.json");
-
-    @Autowired
-    private RssParser rssParser;
+    private Path path1;
+    private Path path2;
 
     @Before
     public void setUp() throws Exception {
+        path1 = Paths.get(rssParser.getAbsolute() + "news.json");
+        path2 = Paths.get(rssParser.getAbsolute() + "health.json");
         assertFalse(Files.exists(path1));
         assertFalse(Files.exists(path2));
     }
