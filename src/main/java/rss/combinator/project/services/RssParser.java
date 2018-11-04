@@ -84,13 +84,7 @@ public class RssParser {
     }
 
     public String getAbsolute() {
-        return Paths.get(getClass()
-                .getResource("/")
-                .getPath()
-                .replaceFirst("/", ""))
-                .getParent().getParent()
-                .resolve(pathPrefix)
-                .toString();
+        return new File(pathPrefix).getAbsolutePath();
     }
 
     public Boolean deleteFile(String name) {
