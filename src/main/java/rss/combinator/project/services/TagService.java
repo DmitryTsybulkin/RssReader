@@ -30,12 +30,6 @@ public class TagService {
     }
 
     @Transactional(readOnly = true)
-    public Tag getById(Long id) {
-        return tagRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Tag by id: " + id + " not found"));
-    }
-
-    @Transactional(readOnly = true)
     public Set<Tag> getAll() {
         return new HashSet<>(tagRepository.findAll());
     }

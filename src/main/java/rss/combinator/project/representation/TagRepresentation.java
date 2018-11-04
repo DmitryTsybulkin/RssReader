@@ -22,17 +22,12 @@ public class TagRepresentation {
         this.rssParser = rssParser;
     }
 
-    public void createTag(String name, Set<String> links) {
+    public Set<String> createTag(String name, Set<String> links) {
         tagService.create(name);
-        createTape(name, links);
-    }
-
-    public void createTape(String name, Set<String> links) {
-        if (links != null && !links.isEmpty()) {
-            Map<String, List<String>> map = new HashMap<>();
-            map.put(name, new ArrayList<>(links));
-            rssParser.parseRss(map);
-        }
+        Map<String, List<String>> map = new HashMap<>();
+        map.put(name, new ArrayList<>(links));
+        rssParser.parseRss(map);
+        return getAllTags();
     }
 
     public Set<String> getAllTags() {
@@ -42,7 +37,7 @@ public class TagRepresentation {
                 .collect(Collectors.toSet());
     }
 
-    public void deleteTape(String name) {
+    public void deleteTag(String name) {
         tagService.delete(name);
         Boolean deleted = rssParser.deleteFile(name);
         if (!deleted) {

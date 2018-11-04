@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -24,10 +25,9 @@ import java.util.stream.Collectors;
 @Service
 public class RssParser {
 
-    @Value("${download.path.prefix}")
-    private String pathPrefix;
     @Value("${download.path.suffix}")
     private String pathSuffix;
+    private String absolutePath = Utils.getAbsolute();
     private final JsonFormatterService jsonFormatterService;
 
     @Autowired
@@ -36,7 +36,7 @@ public class RssParser {
     }
 
     public void parseRss(Map<String, List<String>> entries) {
-        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        ExecutorService executorService = Executors.newFixedThreadPool(8);
 
         long start = System.currentTimeMillis();
         List<String> json = new ArrayList<>();
@@ -75,7 +75,7 @@ public class RssParser {
     }
 
     private synchronized void saveToFile(String name, List<String> json) {
-        try (PrintWriter pw = new PrintWriter(new FileOutputStream(getAbsolute() + name + pathSuffix))) {
+        try (PrintWriter pw = new PrintWriter(new FileOutputStream(absolutePath + name + pathSuffix))) {
             for (String entry : json)
                 pw.println(entry);
         } catch (FileNotFoundException e) {
@@ -83,13 +83,9 @@ public class RssParser {
         }
     }
 
-    public String getAbsolute() {
-        return new File(pathPrefix).getAbsolutePath();
-    }
-
     public Boolean deleteFile(String name) {
         try {
-            return Files.deleteIfExists(Paths.get(getAbsolute() + name + pathSuffix));
+            return Files.deleteIfExists(Paths.get(absolutePath + name + pathSuffix));
         } catch (IOException e) {
             e.printStackTrace();
         }
