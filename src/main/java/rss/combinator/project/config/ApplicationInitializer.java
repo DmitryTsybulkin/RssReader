@@ -36,7 +36,6 @@ public class ApplicationInitializer implements ApplicationListener<ApplicationRe
     public void onApplicationEvent(ApplicationReadyEvent event) {
         log.info("Initializing application...");
 
-        String company = "http://feeds.reuters.com/reuters/companyNews";
         String business = "http://feeds.reuters.com/reuters/businessNews";
         String science = "http://feeds.reuters.com/reuters/scienceNews";
         String space = "http://rss.cnn.com/rss/edition_space.rss";
@@ -48,19 +47,18 @@ public class ApplicationInitializer implements ApplicationListener<ApplicationRe
             Tag usualTag = tagRepository.save(Tag.builder().name(usualNews).build());
             Tag scienceTag = tagRepository.save(Tag.builder().name(scienceNews).build());
 
-            Link companyLink = linkRepository.save(Link.builder().url(company).tag(usualTag).build());
             Link businessLink = linkRepository.save(Link.builder().url(business).tag(usualTag).build());
             Link scienceLink = linkRepository.save(Link.builder().url(science).tag(scienceTag).build());
             Link spaceLink = linkRepository.save(Link.builder().url(space).tag(scienceTag).build());
 
-            usualTag.setLinks(Arrays.asList(companyLink, businessLink));
+            usualTag.setLinks(Collections.singletonList(businessLink));
             scienceTag.setLinks(Arrays.asList(scienceLink, spaceLink));
             log.info("Database was successfully initialized");
             if (Files.notExists(Paths.get(Utils.getAbsolute()))) {
                 Files.createDirectory(Paths.get(Utils.getAbsolute()));
             }
             Map<String, List<String>> map = new HashMap<>();
-            map.put(usualNews, Arrays.asList(company, business));
+            map.put(usualNews, Collections.singletonList(business));
             map.put(scienceNews, Arrays.asList(space, science));
             rssParser.parseRss(map);
             log.info("Files were successfully saved");

@@ -11,6 +11,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.transaction.annotation.Transactional;
 import rss.combinator.project.services.JsonFormatterService;
+import rss.combinator.project.services.Utils;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -61,6 +65,7 @@ public class TagControllerTest {
                 .andExpect(jsonPath("$.[2].id", equalTo(3)))
                 .andExpect(jsonPath("$.[2].name", notNullValue()))
                 .andExpect(jsonPath("$.[2].name", equalTo("sport")));
+        Files.deleteIfExists(Paths.get(Utils.getAbsolute() + "sport.json"));
     }
 
     @Test
