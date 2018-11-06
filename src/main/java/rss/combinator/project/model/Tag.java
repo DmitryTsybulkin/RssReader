@@ -20,8 +20,8 @@ public class Tag {
     private Long id;
     @Column(name = "name")
     private String name;
-    @ManyToMany(mappedBy = "tags")
-    private Set<User> user;
+    @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Link> links;
 
     public Tag(String name) {
         this.name = name;

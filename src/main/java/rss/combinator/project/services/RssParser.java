@@ -36,9 +36,9 @@ public class RssParser {
     }
 
     public void parseRss(Map<String, List<String>> entries) {
-        ExecutorService executorService = Executors.newFixedThreadPool(8);
+        final int cores = Runtime.getRuntime().availableProcessors();
+        ExecutorService executorService = Executors.newFixedThreadPool(cores);
 
-        long start = System.currentTimeMillis();
         List<String> json = new ArrayList<>();
         entries.forEach((tag, links) -> {
 
@@ -49,7 +49,6 @@ public class RssParser {
                 }
                 try {
 
-                    // TODO: 04.11.2018 придумать, что сделать с этим и чуть ниже костылями
                     if (links.size() > 1 && links.indexOf(link) != 0 && links.indexOf(link) == links.size() - 1) {
                         final String s = json.get(json.size() - 1);
                         json.set(json.size() - 1, s.replace("]", ","));
@@ -69,15 +68,13 @@ public class RssParser {
             saveToFile(tag, json);
             json.clear();
         });
-
-        System.out.println("Использовано времени: " + (System.currentTimeMillis() - start) + " миллисекунд");
-
     }
 
-    private synchronized void saveToFile(String name, List<String> json) {
+    public synchronized void saveToFile(String name, List<String> json) {
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(absolutePath + name + pathSuffix))) {
-            for (String entry : json)
+            for (String entry : json) {
                 pw.println(entry);
+            }
         } catch (FileNotFoundException e) {
             e.getLocalizedMessage();
         }
@@ -89,10 +86,10 @@ public class RssParser {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 
-    private synchronized Callable<List<String>> parseLink(String link) {
+    public synchronized Callable<List<String>> parseLink(String link) {
         try {
             URL url = new URL(link);
             SyndFeedInput input = new SyndFeedInput();

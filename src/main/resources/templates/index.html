@@ -5,6 +5,42 @@
     <title>Reader</title>
 </head>
 <body>
-Hello, world!
+
+<header>
+    <input type="button" onclick="start()" value="start">
+    <input type="button" onclick="stop()" value="stop">
+</header>
+
+<main>
+<div id="content">
+
+</div>
+</main>
+
+
+<footer>
+
+</footer>
+
+<script>
+    var eventSource = null;
+    function start() {
+        eventSource = new EventSource("/posts");
+        console.log("Open connection");
+        var cont = document.getElementById('content');
+
+        eventSource.onmessage = function (e) {
+            var json = JSON.parse(e.data);
+            cont.innerHTML += '<div class="block" style="border: black 1px solid">';
+            cont.innerHTML += '<div><h5>' + json.date + '</h5><a href="' + json.link + '">' + json.title + '</a></div>';
+            cont.innerHTML += '</div>';
+
+        };
+    }
+    function stop() {
+        console.log("Close connection");
+        eventSource.close();
+    }
+</script>
 </body>
 </html>

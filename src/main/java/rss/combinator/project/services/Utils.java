@@ -1,22 +1,25 @@
 package rss.combinator.project.services;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import java.io.File;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
+import java.util.Locale;
 
-@Service
 public class Utils {
 
-    @Value("${download.path.prefix}")
-    private static String pathPrefix;
+    private final static String pathPrefix = "downloads/";
 
-    public final static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private final static DateTimeFormatter inDateFormat = DateTimeFormatter
+            .ofPattern("EEE SMMM dd HH:mm:ss zzz yyyy", Locale.US);
+
+    public final static DateTimeFormatter outDateFormat = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
 
     public static String getAbsolute() {
-        return new File(Objects.requireNonNull(pathPrefix)).getAbsolutePath() + "/";
+        return new File(pathPrefix).getAbsolutePath() + "/";
+    }
+
+    public static String formatDate(String date) {
+        return outDateFormat.format(LocalDateTime.parse(date, inDateFormat));
     }
 
 }
