@@ -1,7 +1,7 @@
 # RssReader
 Simple multithreading rss/atom tapes reader
 
-Deploy: https://rss-reader-application.herokuapp.com/posts
+Deploy: https://rss-reader-application.herokuapp.com
 
 At the 6 November 2018, develop - is main and stable branch (
 
