@@ -1,24 +1,31 @@
 package rss.combinator.project.services;
 
-import lombok.extern.slf4j.Slf4j;
-import com.rometools.rome.io.XmlReader;
-import com.rometools.rome.io.SyndFeedInput;
-import rss.combinator.project.dto.PostDTO;
-import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.feed.synd.SyndEntry;
-import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedInput;
+import com.rometools.rome.io.XmlReader;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import rss.combinator.project.dto.PostDTO;
+import rss.combinator.project.exceptions.ParseRssException;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,16 +35,16 @@ public class RssParser {
     @Value("${download.path.suffix}")
     private String pathSuffix;
     private String absolutePath = Utils.getAbsolute();
-    private final JsonFormatterService jsonFormatterService;
+    private final JsonParserService jsonParserService;
+    private final int cores = Runtime.getRuntime().availableProcessors();
 
     @Autowired
-    public RssParser(JsonFormatterService jsonFormatterService) {
-        this.jsonFormatterService = jsonFormatterService;
+    public RssParser(JsonParserService jsonParserService) {
+        this.jsonParserService = jsonParserService;
     }
 
     public void parseRss(Map<String, List<String>> entries) {
-        final int cores = Runtime.getRuntime().availableProcessors();
-        ExecutorService executorService = Executors.newFixedThreadPool(cores);
+        ExecutorService executorService = Executors.newFixedThreadPool(cores - 1);
 
         List<String> json = new ArrayList<>();
         entries.forEach((tag, links) -> {
@@ -45,7 +52,7 @@ public class RssParser {
             links.forEach(link -> {
                 Callable<List<String>> callable = parseLink(link);
                 if (callable == null) {
-                    throw new RuntimeException("Callable is null");
+                    throw new ParseRssException("Error parsing rss by link: " + link);
                 }
                 try {
 
@@ -100,7 +107,7 @@ public class RssParser {
             json.add("[");
             json.addAll(feed.getEntries().stream()
                     .map(this::toPostDto)
-                    .map(dto -> jsonFormatterService.toJson(dto) + ",")
+                    .map(dto -> jsonParserService.toJson(dto) + ",")
                     .collect(Collectors.toList()));
 
             int lastElement = json.size() - 1;
@@ -108,7 +115,7 @@ public class RssParser {
             json.add("]");
 
             return () -> json;
-        } catch (Exception e) {
+        } catch (IOException | FeedException e) {
             e.getLocalizedMessage();
         }
         return null;
@@ -117,7 +124,8 @@ public class RssParser {
     public synchronized PostDTO toPostDto(SyndEntry entry) {
         return PostDTO.builder()
                 .title(entry.getTitle())
-                .date(entry.getPublishedDate() == null ? "unknown date" : entry.getPublishedDate().toString())
+                .date(entry.getPublishedDate() == null ?
+                        entry.getUpdatedDate().toString() : entry.getPublishedDate().toString())
                 .link(entry.getLink())
                 .build();
     }

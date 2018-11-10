@@ -41,12 +41,6 @@
         console.log("Close connection");
         eventSource.close();
     }
-    var reqTimer = setTimeout(function wakeUp() {
-        request("https://rss-reader-application.herokuapp.com", function() {
-            console.log("WAKE UP DYNO");
-        });
-        return reqTimer = setTimeout(wakeUp, 1200000);
-    }, 1200000);
 </script>
 </body>
 </html>

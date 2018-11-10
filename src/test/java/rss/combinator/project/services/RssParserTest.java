@@ -17,7 +17,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static org.junit.Assert.*;
@@ -29,13 +32,11 @@ public class RssParserTest {
     @Autowired
     private RssParser rssParser;
 
-    private final String company = "http://feeds.reuters.com/reuters/companyNews";
-    private final String business = "http://feeds.reuters.com/reuters/businessNews";
-    private final String science = "http://feeds.reuters.com/reuters/scienceNews";
-    private final String space = "http://rss.cnn.com/rss/edition_space.rss";
+    private final String reddit = "https://www.reddit.com/r/news+wtf.rss";
+    private final String sports = "http://rss.cnn.com/rss/edition_sport.rss";
 
-    private Path path1 = Paths.get(Utils.getAbsolute() + "business.json");
-    private Path path2 = Paths.get(Utils.getAbsolute() + "science.json");
+    private Path path1 = Paths.get(Utils.getAbsolute() + "reddit.json");
+    private Path path2 = Paths.get(Utils.getAbsolute() + "sports.json");
 
     @Before
     public void setUp() throws Exception {
@@ -54,8 +55,8 @@ public class RssParserTest {
     @Test
     public void parseRss() throws Exception {
         Map<String, List<String>> map = new HashMap<>();
-        map.put("business", Arrays.asList(company, business));
-        map.put("science", Arrays.asList(science, space));
+        map.put("reddit", Collections.singletonList(reddit));
+        map.put("sports", Collections.singletonList(sports));
         rssParser.parseRss(map);
         assertTrue(Files.exists(path1));
         assertTrue(Files.exists(path2));
@@ -84,7 +85,7 @@ public class RssParserTest {
 
     @Test
     public void parseLink() throws Exception {
-        final Callable<List<String>> callable = rssParser.parseLink(science);
+        final Callable<List<String>> callable = rssParser.parseLink(sports);
         assertNotNull(callable);
         assertTrue(callable.call().get(0).contains("["));
         assertTrue(callable.call().get(callable.call().size() - 1).contains("]"));
@@ -95,11 +96,16 @@ public class RssParserTest {
 
     @Test
     public void toPostDto() throws Exception {
-        URL url = new URL(space);
+        URL url = new URL(reddit);
         SyndFeedInput input = new SyndFeedInput();
         SyndFeed feed = input.build(new XmlReader(url));
         SyndEntry syndEntry = feed.getEntries().get(0);
-        String pubDate = syndEntry.getPublishedDate().toString();
+        String date;
+        if (syndEntry.getPublishedDate() == null) {
+            date = syndEntry.getUpdatedDate().toString();
+        } else {
+            date = syndEntry.getPublishedDate().toString();
+        }
         String title = syndEntry.getTitle();
         String link = syndEntry.getLink();
         PostDTO dto = rssParser.toPostDto(syndEntry);
@@ -107,7 +113,7 @@ public class RssParserTest {
         assertNotNull(dto.getTitle());
         assertEquals(title, dto.getTitle());
         assertNotNull(dto.getDate());
-        assertEquals(pubDate, dto.getDate());
+        assertEquals(date, dto.getDate());
         assertNotNull(dto.getLink());
         assertEquals(link, dto.getLink());
     }

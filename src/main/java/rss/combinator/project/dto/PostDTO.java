@@ -3,8 +3,6 @@ package rss.combinator.project.dto;
 import lombok.*;
 import rss.combinator.project.services.Utils;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 
 @Getter
@@ -21,7 +19,7 @@ public class PostDTO implements Comparable<PostDTO> {
     @Override
     public int compareTo(PostDTO that) {
         int dateCompare = LocalDateTime.parse(this.date, Utils.outDateFormat)
-                .compareTo(LocalDateTime.parse(that.date, Utils.outDateFormat));
+                    .compareTo(LocalDateTime.parse(that.date, Utils.outDateFormat));
         if (dateCompare != 0) {
             return dateCompare;
         }

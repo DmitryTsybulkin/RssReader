@@ -37,4 +37,10 @@ public class ScheduledNews {
         log.info("Loaded fresh news");
     }
 
+    @Scheduled(cron = "0 0 1 */2 * *")
+    public void deleteOldNews() {
+        List<Tag> tags = tagService.getAll();
+        tags.forEach(tag -> rssParser.deleteFile(tag.getName()));
+    }
+
 }

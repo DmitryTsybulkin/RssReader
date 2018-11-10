@@ -48,8 +48,7 @@ public class TagService {
 
     @Transactional
     public void delete(String name) {
-        Tag tag = tagRepository.findTagByName(name).orElseThrow(() ->
-                new ResourceNotFoundException("Tag by name: " + name + " not found"));
+        Tag tag = getByName(name);
         tagRepository.delete(tag);
     }
 

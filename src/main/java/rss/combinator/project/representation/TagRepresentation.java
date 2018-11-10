@@ -9,7 +9,10 @@ import rss.combinator.project.services.LinkService;
 import rss.combinator.project.services.RssParser;
 import rss.combinator.project.services.TagService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,7 +59,7 @@ public class TagRepresentation {
     }
 
     public Tag fromDto(TagDTO dto) {
-        return Tag.builder().name(dto.getName()).build();
+        return Tag.builder().id(dto.getId()).name(dto.getName()).build();
     }
 
 }

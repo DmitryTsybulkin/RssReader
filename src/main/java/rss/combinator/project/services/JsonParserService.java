@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class JsonFormatterService {
+public class JsonParserService {
 
     private final ObjectMapper mapper = new ObjectMapper();
 

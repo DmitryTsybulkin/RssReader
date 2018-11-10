@@ -81,11 +81,9 @@ public class TagServiceTest {
         final String travel = "travel";
         final String newName = "sport";
         tagService.create(travel);
-
         final Tag tag = tagService.getByName(travel);
         assertNotNull(tag);
         tagService.update(tag.getId(), newName);
-
         final Tag result = tagService.getByName(newName);
         assertNotNull(result);
     }
@@ -94,11 +92,8 @@ public class TagServiceTest {
     public void delete() throws Exception {
         final String name = "tag";
         tagService.create(name);
-
         assertNotNull(tagService.getByName(name));
-
         tagService.delete(name);
-
         assertFalse(tagRepository.findTagByName(name).isPresent());
     }
 

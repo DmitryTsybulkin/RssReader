@@ -15,10 +15,10 @@ import static org.junit.Assert.assertEquals;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class JsonFormatterServiceTest {
+public class JsonParserServiceTest {
 
     @Autowired
-    private JsonFormatterService jsonFormatterService;
+    private JsonParserService jsonParserService;
 
     private final String targetJson = "{\"title\":\"TITLE\"," +
                                         "\"date\":\"2018-11-01\"," +
@@ -32,7 +32,7 @@ public class JsonFormatterServiceTest {
 
     @Test
     public void toJson() throws Exception {
-        String json = jsonFormatterService.toJson(dto);
+        String json = jsonParserService.toJson(dto);
         assertEquals(targetJson, json);
     }
 
@@ -42,7 +42,7 @@ public class JsonFormatterServiceTest {
         PrintWriter pw = new PrintWriter(file);
         pw.println("[" + targetJson + "]");
         pw.close();
-        PostDTO resultDTO = jsonFormatterService.fromJson(file).get(0);
+        PostDTO resultDTO = jsonParserService.fromJson(file).get(0);
         assertEquals(dto.getTitle(), resultDTO.getTitle());
         assertEquals(dto.getDate(), resultDTO.getDate());
         assertEquals(dto.getLink(), resultDTO.getLink());

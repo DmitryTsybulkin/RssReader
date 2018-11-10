@@ -27,10 +27,13 @@ public class PostController {
     public Flux<PostDTO> getPosts(@RequestParam(name = "from", required = false) String date,
                                   @RequestParam(name = "tag", required = false) List<String> tags) {
         if (date != null && tags != null && !tags.isEmpty()) {
-            return Flux.fromIterable(postRepresentation.getByTagAndFromDate(tags,
-                    LocalDateTime.parse(date, Utils.outDateFormat)));
+            return Flux.fromIterable(postRepresentation
+                    .getByTagAndFromDate(tags, LocalDateTime.parse(date, Utils.outDateFormat)));
         } else if (date == null && tags != null && !tags.isEmpty()) {
             return Flux.fromIterable(postRepresentation.getByTags(tags));
+        } else if (date != null) {
+            return Flux.fromIterable(postRepresentation
+                    .getAllFromDate(LocalDateTime.parse(date, Utils.outDateFormat)));
         } else {
             return Flux.fromIterable(postRepresentation.getAll());
         }
