@@ -5,11 +5,15 @@ Deploy: https://rss-reader-application.herokuapp.com/posts
 
 At the 6 November 2018, develop - is main and stable branch (
 
-REST Controllers:
+REST Controllers (or go to: "/swagger-ui.html"):
 
 /tags [GET] - get all tags (return: object {id:Long, name:String});
 
-/tags/new [POST] - create new tag (params (requared): 
+/tags/new [POST] - create new tag (params (requared): name:String);
+
+/tags/{id} [PATCH] - update tag by id (param (requared): name - new name of tag)
+
+/tags/{name} [DELETE] - delete tag by name;
 
 /posts [GET] - sse controller, (params (not requared): name - string name of new tag, links - array of strings, where every element is url to rss/atom channel;
 
@@ -21,7 +25,3 @@ Param: Date from which need news, format: "HH:mm:ss dd-MM-yyyy", example: "/post
 
 Params: Array of strings, where strings are names of tags and from - date from which need news, 
 format: "HH:mm:ss dd-MM-yyyy", example: "/posts?tag=business&from=12:59:59 01-11-2018". Return posts by tags and by date;
-
-/posts/{id} [PATCH] - update tag by id (param (requared): name - new name of tag)
-
-/posts/{name} [DELETE] - delete tag by name;
