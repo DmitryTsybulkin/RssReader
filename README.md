@@ -13,13 +13,15 @@ REST Controllers:
 
 /posts [GET] - sse controller, (params (not requared): name - string name of new tag, links - array of strings, where every element is url to rss/atom channel;
 
+No params: get all posts;
+
+Param: Array of strings, where strings are names of tags, example: "/posts?tag=business". Return posts by tags;
+
+Param: Date from which need news, format: "HH:mm:ss dd-MM-yyyy", example: "/posts?from=12:59:59 01-11-2018". Return all posts by date;
+
+Params: Array of strings, where strings are names of tags and from - date from which need news, 
+format: "HH:mm:ss dd-MM-yyyy", example: "/posts?tag=business&from=12:59:59 01-11-2018". Return posts by tags and by date;
+
 /posts/{id} [PATCH] - update tag by id (param (requared): name - new name of tag)
 
 /posts/{name} [DELETE] - delete tag by name;
-
-No params: get all posts
-
-Param: Array of strings, where strings are names of tags, example: "/posts?tag=business";
-
-Params: Array of strings, where strings are names of tags and from - date from which need news, 
-format: "HH:mm:ss dd-MM-yyyy", example: "/posts?tag=business&from=12:59:59 01-11-2018"
