@@ -12,11 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import rss.combinator.project.dto.PostDTO;
+import rss.combinator.project.exceptions.ParseRssException;
 
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +66,13 @@ public class RssParserTest {
         assertTrue(Files.isReadable(path2));
     }
 
+    @Test(expected = ParseRssException.class)
+    public void parseRssFailedParseRssException() throws Exception {
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("anyTag", Collections.singletonList("badLink"));
+        rssParser.parseRss(map);
+    }
+
     @Test
     public void saveToFile() throws Exception {
         rssParser.saveToFile("name", Collections.singletonList("{\"name\":\"best-name\"}"));
@@ -85,13 +94,13 @@ public class RssParserTest {
 
     @Test
     public void parseLink() throws Exception {
-        final Callable<List<String>> callable = rssParser.parseLink(sports);
+        final Callable<String> callable = rssParser.parseLink(sports);
         assertNotNull(callable);
-        assertTrue(callable.call().get(0).contains("["));
-        assertTrue(callable.call().get(callable.call().size() - 1).contains("]"));
-        assertTrue(callable.call().get(1).contains("title"));
-        assertTrue(callable.call().get(1).contains("date"));
-        assertTrue(callable.call().get(1).contains("link"));
+        assertTrue(callable.call().startsWith("["));
+        assertTrue(callable.call().endsWith("]"));
+        assertTrue(callable.call().contains("title"));
+        assertTrue(callable.call().contains("date"));
+        assertTrue(callable.call().contains("link"));
     }
 
     @Test
@@ -103,8 +112,10 @@ public class RssParserTest {
         String date;
         if (syndEntry.getPublishedDate() == null) {
             date = syndEntry.getUpdatedDate().toString();
-        } else {
+        } else if (syndEntry.getUpdatedDate() == null) {
             date = syndEntry.getPublishedDate().toString();
+        } else {
+            date = LocalDateTime.now().format(Utils.inDateFormat);
         }
         String title = syndEntry.getTitle();
         String link = syndEntry.getLink();

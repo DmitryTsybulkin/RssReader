@@ -20,7 +20,7 @@ public class TagController {
         this.tagRepresentation = tagRepresentation;
     }
 
-    @GetMapping("/tags")
+    @GetMapping(value = "/tags", produces = "application/json")
     @ApiOperation(value = "Get all tags", httpMethod = "GET", produces = "application/json")
     public List<TagDTO> getTags() {
         return tagRepresentation.getAllTags();

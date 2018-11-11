@@ -20,8 +20,7 @@ public class JsonParserService {
         try {
             return mapper.writeValueAsString(obj);
         } catch (IOException e) {
-            log.error("Error convert object to json format.");
-            e.getLocalizedMessage();
+            log.error("Error convert object to json format: " + e.getLocalizedMessage());
         }
         return null;
     }
@@ -30,8 +29,7 @@ public class JsonParserService {
         try {
             return mapper.readValue(file, new TypeReference<List<PostDTO>>(){});
         } catch (IOException e) {
-            log.error("Error parsing json file.");
-            e.getLocalizedMessage();
+            log.error("Error parsing json file: " + e.getLocalizedMessage());
         }
         return null;
     }

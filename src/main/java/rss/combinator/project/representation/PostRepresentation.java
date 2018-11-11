@@ -1,5 +1,6 @@
 package rss.combinator.project.representation;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rss.combinator.project.dto.PostDTO;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class PostRepresentation {
 
@@ -43,7 +45,7 @@ public class PostRepresentation {
                     .collect(Collectors.toList())
                     .forEach(path -> result.addAll(jsonParserService.fromJson(path.toFile())));
         } catch (IOException e) {
-            e.getLocalizedMessage();
+            log.error("Get all posts failed: " + e.getLocalizedMessage());
         }
         result.forEach(dto -> dto.setDate(Utils.formatDate(dto.getDate())));
         Collections.sort(result);

@@ -40,12 +40,12 @@ public class ApplicationInitializer implements ApplicationListener<ApplicationRe
         String science = "http://feeds.reuters.com/reuters/scienceNews";
         String space = "http://rss.cnn.com/rss/edition_space.rss";
 
-        String usualNews = "business";
-        String scienceNews = "science";
+        String businessTagName = "business";
+        String scienceTagName = "science";
 
         try {
-            Tag usualTag = tagRepository.save(Tag.builder().name(usualNews).build());
-            Tag scienceTag = tagRepository.save(Tag.builder().name(scienceNews).build());
+            Tag usualTag = tagRepository.save(Tag.builder().name(businessTagName).build());
+            Tag scienceTag = tagRepository.save(Tag.builder().name(scienceTagName).build());
 
             Link businessLink = linkRepository.save(Link.builder().url(business).tag(usualTag).build());
             Link scienceLink = linkRepository.save(Link.builder().url(science).tag(scienceTag).build());
@@ -58,14 +58,12 @@ public class ApplicationInitializer implements ApplicationListener<ApplicationRe
                 Files.createDirectory(Paths.get(Utils.getAbsolute()));
             }
             Map<String, List<String>> map = new HashMap<>();
-            map.put(usualNews, Collections.singletonList(business));
-            map.put(scienceNews, Arrays.asList(space, science));
+            map.put(businessTagName, Collections.singletonList(business));
+            map.put(scienceTagName, Arrays.asList(space, science));
             rssParser.parseRss(map);
             log.info("Files were successfully saved");
-        } catch (RuntimeException e) {
-            e.getLocalizedMessage();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (RuntimeException | IOException e) {
+            log.error("Application initializing failed: " + e.getLocalizedMessage());
         }
     }
 }

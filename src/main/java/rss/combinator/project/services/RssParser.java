@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,7 @@ public class RssParser {
         entries.forEach((tag, links) -> {
 
             links.forEach(link -> {
-                Callable<List<String>> callable = parseLink(link);
+                Callable<String> callable = parseLink(link);
                 if (callable == null) {
                     throw new ParseRssException("Error parsing rss by link: " + link);
                 }
@@ -61,15 +62,15 @@ public class RssParser {
                         json.set(json.size() - 1, s.replace("]", ","));
                     }
 
-                    List<String> list = executorService.submit(callable).get();
+                    String list = executorService.submit(callable).get();
 
                     if (links.size() > 1 && links.indexOf(link) == links.size() - 1) {
-                        list.remove(0);
+                        list = list.substring(1, list.length());
                     }
 
-                    json.addAll(list);
+                    json.add(list);
                 } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+                    log.error("Error parsing rss feed: " + e.getLocalizedMessage());
                 }
             });
             saveToFile(tag, json);
@@ -83,7 +84,7 @@ public class RssParser {
                 pw.println(entry);
             }
         } catch (FileNotFoundException e) {
-            e.getLocalizedMessage();
+            log.error(e.getLocalizedMessage());
         }
     }
 
@@ -91,41 +92,41 @@ public class RssParser {
         try {
             return Files.deleteIfExists(Paths.get(absolutePath + name + pathSuffix));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.getLocalizedMessage());
         }
         return false;
     }
 
-    public synchronized Callable<List<String>> parseLink(String link) {
+    public synchronized Callable<String> parseLink(String link) {
         try {
             URL url = new URL(link);
             SyndFeedInput input = new SyndFeedInput();
             SyndFeed feed = input.build(new XmlReader(url));
-
-            List<String> json = new ArrayList<>();
-
-            json.add("[");
-            json.addAll(feed.getEntries().stream()
+            List<PostDTO> json = feed.getEntries()
+                    .stream()
+                    .filter(entry -> entry.getTitle() != null && entry.getLink() != null)
                     .map(this::toPostDto)
-                    .map(dto -> jsonParserService.toJson(dto) + ",")
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList());
 
-            int lastElement = json.size() - 1;
-            json.set(lastElement, json.get(lastElement).substring(0, json.get(lastElement).lastIndexOf(",")));
-            json.add("]");
-
-            return () -> json;
+            return () -> jsonParserService.toJson(json);
         } catch (IOException | FeedException e) {
-            e.getLocalizedMessage();
+            log.error("Error parsing link: " + link + "\n" + e.getLocalizedMessage());
         }
         return null;
     }
 
     public synchronized PostDTO toPostDto(SyndEntry entry) {
+        String date;
+        if (entry.getPublishedDate() != null) {
+            date = entry.getPublishedDate().toString();
+        } else if (entry.getUpdatedDate() != null) {
+            date = entry.getUpdatedDate().toString();
+        } else {
+            date = LocalDateTime.now().format(Utils.inDateFormat);
+        }
         return PostDTO.builder()
                 .title(entry.getTitle())
-                .date(entry.getPublishedDate() == null ?
-                        entry.getUpdatedDate().toString() : entry.getPublishedDate().toString())
+                .date(date)
                 .link(entry.getLink())
                 .build();
     }
