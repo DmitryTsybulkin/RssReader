@@ -1,9 +1,11 @@
 # RssReader
 Simple multithreading rss/atom tapes reader
+Простое многопоточное приложение для чтения rss/atom лент.
 
 Deploy: https://rss-reader-application.herokuapp.com
 
-At the 6 November 2018, develop - is main and stable branch (
+At the 6 November 2018, develop - is main and stable branch for developing and test.
+На период 6 ноября 2018, develop - ведущая и стабильная ветка для разработки и тестирования.
 
 REST Controllers (or go to: "/swagger-ui.html"):
 
