@@ -1,5 +1,8 @@
 package rss.combinator.project.controllers;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@Api(description = "Get existing posts")
 public class PostController {
 
     private final PostRepresentation postRepresentation;
@@ -24,8 +28,16 @@ public class PostController {
     }
 
     @GetMapping(value = "/posts", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<PostDTO> getPosts(@RequestParam(name = "from", required = false) String date,
-                                  @RequestParam(name = "tag", required = false) List<String> tags) {
+    @ApiOperation(value = "Get all posts or by tags or by date ", notes = "No params: get all posts;\n" +
+            "Param: from - return posts by tags;\n" +
+            "Param: tag - return all posts by date;\n" +
+            "Params: all - return posts by tags and by date;\n", httpMethod = "GET", produces = "text/event-stream")
+    public Flux<PostDTO> getPosts(@RequestParam(name = "from", required = false)
+                                      @ApiParam(value = "Date from which need news, format: \"HH:mm:ss dd-MM-yyyy\".")
+                                              String date,
+                                  @RequestParam(name = "tags", required = false)
+                                      @ApiParam(value = "Array of strings, where strings are names of tags")
+                                              List<String> tags) {
         if (date != null && tags != null && !tags.isEmpty()) {
             return Flux.fromIterable(postRepresentation
                     .getByTagAndFromDate(tags, LocalDateTime.parse(date, Utils.outDateFormat)));
