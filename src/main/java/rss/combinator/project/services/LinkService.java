@@ -24,11 +24,11 @@ public class LinkService {
     }
 
     @Transactional
-    public Link create(String url, Tag tag) {
+    public void create(String url, Tag tag) {
         if (linkRepository.findByUrlAndTag(url, tag).isPresent()) {
             throw new EntryDuplicateException("link by url: " + url + " already exists");
         }
-        return linkRepository.save(new Link(url, tag));
+        linkRepository.save(new Link(url, tag));
     }
 
     @Transactional(readOnly = true)

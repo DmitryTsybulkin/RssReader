@@ -88,6 +88,11 @@ public class TagServiceTest {
         assertNotNull(result);
     }
 
+    @Test(expected = ResourceNotFoundException.class)
+    public void updateFailedResourceNotFound() throws Exception {
+        tagService.update(100L, "anyName");
+    }
+
     @Test
     public void delete() throws Exception {
         final String name = "tag";

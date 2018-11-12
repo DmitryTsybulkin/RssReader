@@ -62,13 +62,13 @@ public class RssParser {
                         json.set(json.size() - 1, s.replace("]", ","));
                     }
 
-                    String list = executorService.submit(callable).get();
+                    String result = executorService.submit(callable).get();
 
                     if (links.size() > 1 && links.indexOf(link) == links.size() - 1) {
-                        list = list.substring(1, list.length());
+                        result = result.substring(1);
                     }
 
-                    json.add(list);
+                    json.add(result);
                 } catch (InterruptedException | ExecutionException e) {
                     log.error("Error parsing rss feed: " + e.getLocalizedMessage());
                 }
