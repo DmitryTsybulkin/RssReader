@@ -19,7 +19,6 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,7 @@ public class RssParser {
     }
 
     public void parseRss(Map<String, List<String>> entries) {
-        ExecutorService executorService = Executors.newFixedThreadPool(cores - 1);
+        ExecutorService executorService = Executors.newFixedThreadPool((int) (cores / (1 - 0.25)));
 
         List<String> json = new ArrayList<>();
         entries.forEach((tag, links) -> {
@@ -104,7 +103,9 @@ public class RssParser {
             SyndFeed feed = input.build(new XmlReader(url));
             List<PostDTO> json = feed.getEntries()
                     .stream()
-                    .filter(entry -> entry.getTitle() != null && entry.getLink() != null)
+                    .filter(entry -> entry.getTitle() != null &&
+                            entry.getLink() != null &&
+                            (entry.getPublishedDate() != null || entry.getUpdatedDate() != null))
                     .map(this::toPostDto)
                     .collect(Collectors.toList());
 
@@ -119,10 +120,8 @@ public class RssParser {
         String date;
         if (entry.getPublishedDate() != null) {
             date = entry.getPublishedDate().toString();
-        } else if (entry.getUpdatedDate() != null) {
-            date = entry.getUpdatedDate().toString();
         } else {
-            date = LocalDateTime.now().format(Utils.inDateFormat);
+            date = entry.getUpdatedDate().toString();
         }
         return PostDTO.builder()
                 .title(entry.getTitle())

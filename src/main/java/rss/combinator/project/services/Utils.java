@@ -10,7 +10,7 @@ public class Utils {
     private final static String pathPrefix = "downloads/";
 
     public final static DateTimeFormatter inDateFormat = DateTimeFormatter
-            .ofPattern("EEE SMMM dd HH:mm:ss zzz yyyy", Locale.US);
+            .ofPattern("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
 
     public final static DateTimeFormatter outDateFormat = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
 

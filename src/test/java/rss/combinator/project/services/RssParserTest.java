@@ -18,7 +18,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -112,10 +111,8 @@ public class RssParserTest {
         String date;
         if (syndEntry.getPublishedDate() == null) {
             date = syndEntry.getUpdatedDate().toString();
-        } else if (syndEntry.getUpdatedDate() == null) {
-            date = syndEntry.getPublishedDate().toString();
         } else {
-            date = LocalDateTime.now().format(Utils.inDateFormat);
+            date = syndEntry.getPublishedDate().toString();
         }
         String title = syndEntry.getTitle();
         String link = syndEntry.getLink();
