@@ -7,8 +7,10 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import rss.combinator.project.model.Link;
 import rss.combinator.project.model.Tag;
+import rss.combinator.project.model.User;
 import rss.combinator.project.repository.LinkRepository;
 import rss.combinator.project.repository.TagRepository;
+import rss.combinator.project.repository.UserRepository;
 import rss.combinator.project.services.RssParser;
 import rss.combinator.project.services.Utils;
 
@@ -23,13 +25,21 @@ public class ApplicationInitializer implements ApplicationListener<ApplicationRe
 
     private final TagRepository tagRepository;
     private final LinkRepository linkRepository;
+    private final UserRepository userRepository;
     private final RssParser rssParser;
+    private final SecurityEncoder securityEncoder;
 
     @Autowired
-    public ApplicationInitializer(TagRepository tagRepository, LinkRepository linkRepository, RssParser rssParser) {
+    public ApplicationInitializer(RssParser rssParser,
+                                  TagRepository tagRepository,
+                                  LinkRepository linkRepository,
+                                  UserRepository userRepository,
+                                  SecurityEncoder securityEncoder) {
         this.tagRepository = tagRepository;
         this.linkRepository = linkRepository;
+        this.userRepository = userRepository;
         this.rssParser = rssParser;
+        this.securityEncoder = securityEncoder;
     }
 
     @Override
@@ -46,6 +56,13 @@ public class ApplicationInitializer implements ApplicationListener<ApplicationRe
         try {
             Tag usualTag = tagRepository.save(Tag.builder().name(businessTagName).build());
             Tag scienceTag = tagRepository.save(Tag.builder().name(scienceTagName).build());
+
+            userRepository.save(User.builder()
+                    .username("user")
+                    .role("USER")
+                    .active(true)
+                    .password(securityEncoder.passwordEncoder().encode("user"))
+                    .build());
 
             Link businessLink = linkRepository.save(Link.builder().url(business).tag(usualTag).build());
             Link scienceLink = linkRepository.save(Link.builder().url(science).tag(scienceTag).build());

@@ -3,6 +3,7 @@ package rss.combinator.project.controllers;
 import com.rometools.rome.io.FeedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -25,6 +26,13 @@ public class ErrorController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public ErrorDTO resourceNotFoundExceptionHandler(Exception e) {
+        return new ErrorDTO(HttpStatus.NOT_FOUND.name(), e.getLocalizedMessage());
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ErrorDTO usernameNotFoundExceptionHandler(Exception e) {
         return new ErrorDTO(HttpStatus.NOT_FOUND.name(), e.getLocalizedMessage());
     }
 
