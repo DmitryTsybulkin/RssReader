@@ -1,6 +1,5 @@
 package rss.combinator.project.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.util.Set;
@@ -10,13 +9,11 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class UserResDTO {
 
     private Long id;
     private String username;
-    @JsonIgnore
-    private String password;
-    private String role;
     private Set<String> tags;
+    private String role;
 
 }

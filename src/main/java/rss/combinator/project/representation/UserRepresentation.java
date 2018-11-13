@@ -4,7 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import rss.combinator.project.dto.UserDTO;
+import rss.combinator.project.dto.UserReqDTO;
+import rss.combinator.project.dto.UserResDTO;
 import rss.combinator.project.model.Tag;
 import rss.combinator.project.model.User;
 import rss.combinator.project.services.UserService;
@@ -22,15 +23,15 @@ public class UserRepresentation {
         this.userService = userService;
     }
 
-    public UserDTO createUser(UserDTO dto) {
+    public UserResDTO createUser(UserReqDTO dto) {
         return toDto(userService.create(fromDto(dto)));
     }
 
-    public UserDTO getUserById(Long id) {
+    public UserResDTO getUserById(Long id) {
         return toDto(userService.getById(id));
     }
 
-    public Page<UserDTO> getAllActiveUsers(Pageable pageable) {
+    public Page<UserResDTO> getAllActiveUsers(Pageable pageable) {
         return userService.getAllActive(pageable).map(this::toDto);
     }
 
@@ -38,8 +39,8 @@ public class UserRepresentation {
         userService.deactivate(id);
     }
 
-    public UserDTO toDto(User user) {
-        return UserDTO.builder()
+    public UserResDTO toDto(User user) {
+        return UserResDTO.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .role(user.getRole())
@@ -48,8 +49,11 @@ public class UserRepresentation {
                 .build();
     }
 
-    public User fromDto(UserDTO dto) {
+    public User fromDto(UserReqDTO dto) {
         return User.builder()
+                .id(dto.getId())
+                .tags(dto.getTags() != null ? dto.getTags().stream()
+                        .map(Tag::new).collect(Collectors.toSet()) : new HashSet<>())
                 .username(dto.getUsername())
                 .password(dto.getPassword())
                 .build();

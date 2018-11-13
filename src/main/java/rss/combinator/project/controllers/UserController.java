@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-import rss.combinator.project.dto.UserDTO;
+import rss.combinator.project.dto.UserReqDTO;
+import rss.combinator.project.dto.UserResDTO;
 import rss.combinator.project.representation.UserRepresentation;
 
 @RestController
@@ -22,24 +23,24 @@ public class UserController {
 
     @PostMapping(value = "/users/new", produces = "application/json")
     @ApiOperation(value = "Create new user", httpMethod = "POST", produces = "application/json")
-    public UserDTO createUser(@RequestBody UserDTO dto) {
+    public UserResDTO createUser(@RequestBody UserReqDTO dto) {
         return userRepresentation.createUser(dto);
     }
 
     @GetMapping("/users/{id}")
     @ApiOperation(value = "Get user by id", httpMethod = "GET", produces = "application/json")
-    public UserDTO getUserById(@PathVariable(value = "id") Long id) {
+    public UserResDTO getUserById(@PathVariable(value = "id") Long id) {
         return userRepresentation.getUserById(id);
     }
 
     @GetMapping("/users")
     @ApiOperation(value = "Get all users", httpMethod = "GET", produces = "application/json")
-    public Page<UserDTO> getAllActiveUsers(Pageable pageable) {
+    public Page<UserResDTO> getAllActiveUsers(Pageable pageable) {
         return userRepresentation.getAllActiveUsers(pageable);
     }
 
     @DeleteMapping(value = "/users/{id}")
-    @ApiOperation(value = "Delete user by id", httpMethod = "DELETE", produces = "application/json")
+    @ApiOperation(value = "Delete user by id", httpMethod = "DELETE")
     public void deactivateUser(@PathVariable(value = "id") Long id) {
         userRepresentation.deactivateUser(id);
     }

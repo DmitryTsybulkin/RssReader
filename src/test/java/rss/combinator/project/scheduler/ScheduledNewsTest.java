@@ -1,17 +1,18 @@
 package rss.combinator.project.scheduler;
 
-import org.junit.Test;
-import org.mockito.Mock;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import rss.combinator.project.model.Tag;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import rss.combinator.project.model.Tag;
+import rss.combinator.project.services.LinkService;
 import rss.combinator.project.services.RssParser;
 import rss.combinator.project.services.TagService;
-import rss.combinator.project.services.LinkService;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -32,14 +33,12 @@ public class ScheduledNewsTest {
 
     private Tag sport = Tag.builder().id(1L).name("sport").build();
     private Tag reddit = Tag.builder().id(2L).name("reddit").build();
-    private Map<String, List<String>> map = new HashMap<>();
 
     @Before
     public void setUp() throws Exception {
         this.scheduledNews = new ScheduledNews(rssParser, tagService, linkService);
         String linkSport = "http://rss.cnn.com/rss/edition_sport.rss";
         String linkReddit = "https://www.reddit.com/r/news+wtf.rss";
-        map.put(sport.getName(), Collections.singletonList(linkSport));
 
         when(tagService.getAll()).thenReturn(Arrays.asList(sport, reddit));
         when(linkService.getAllByTag(sport))
