@@ -43,8 +43,8 @@ public class UserRepresentation {
                 .id(user.getId())
                 .username(user.getUsername())
                 .role(user.getRole())
-                .tags(user.getTags() != null ?
-                        user.getTags().stream().map(Tag::getName).collect(Collectors.toSet()) : new HashSet<>())
+                .tags(user.getTags() == null || user.getTags().isEmpty() ?
+                        new HashSet<>() : user.getTags().stream().map(Tag::getName).collect(Collectors.toSet()))
                 .build();
     }
 
