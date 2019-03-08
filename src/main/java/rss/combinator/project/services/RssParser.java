@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -51,7 +52,7 @@ public class RssParser {
 
             links.forEach(link -> {
                 Callable<String> callable = parseLink(link);
-                if (callable == null) {
+                if (Objects.isNull(callable)) {
                     throw new ParseRssException("Error parsing rss by link: " + link);
                 }
                 try {
@@ -79,9 +80,7 @@ public class RssParser {
 
     public synchronized void saveToFile(String name, List<String> json) {
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(absolutePath + name + pathSuffix))) {
-            for (String entry : json) {
-                pw.println(entry);
-            }
+            json.forEach(pw::println);
         } catch (FileNotFoundException e) {
             log.error(e.getLocalizedMessage());
         }
@@ -103,8 +102,7 @@ public class RssParser {
             SyndFeed feed = input.build(new XmlReader(url));
             List<PostDTO> json = feed.getEntries()
                     .stream()
-                    .filter(entry -> entry.getTitle() != null &&
-                            entry.getLink() != null &&
+                    .filter(entry -> Objects.nonNull(entry.getTitle()) && Objects.nonNull(entry.getLink()) &&
                             (entry.getPublishedDate() != null || entry.getUpdatedDate() != null))
                     .map(this::toPostDto)
                     .collect(Collectors.toList());
@@ -118,7 +116,7 @@ public class RssParser {
 
     public synchronized PostDTO toPostDto(SyndEntry entry) {
         String date;
-        if (entry.getPublishedDate() != null) {
+        if (Objects.nonNull(entry.getPublishedDate())) {
             date = entry.getPublishedDate().toString();
         } else {
             date = entry.getUpdatedDate().toString();

@@ -5,15 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rss.combinator.project.dto.TagDTO;
 import rss.combinator.project.exceptions.FileStorageException;
-import rss.combinator.project.model.Tag;
+import rss.combinator.project.entities.Tag;
 import rss.combinator.project.services.LinkService;
 import rss.combinator.project.services.RssParser;
 import rss.combinator.project.services.TagService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,9 +29,7 @@ public class TagRepresentation {
     }
 
     public void createTag(String name, List<String> links) {
-        Map<String, List<String>> map = new HashMap<>();
-        map.put(name, new ArrayList<>(links));
-        rssParser.parseRss(map);
+        rssParser.parseRss(Collections.singletonMap(name, links));
         Tag tag = tagService.create(name);
         links.forEach(url -> linkService.create(url, tag));
     }

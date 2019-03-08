@@ -10,7 +10,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rss.combinator.project.dto.TagDTO;
 import rss.combinator.project.exceptions.FileStorageException;
-import rss.combinator.project.model.Tag;
+import rss.combinator.project.entities.Tag;
 import rss.combinator.project.repository.TagRepository;
 import rss.combinator.project.services.Utils;
 

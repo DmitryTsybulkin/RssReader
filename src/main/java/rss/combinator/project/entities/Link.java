@@ -1,4 +1,4 @@
-package rss.combinator.project.model;
+package rss.combinator.project.entities;
 
 import lombok.*;
 

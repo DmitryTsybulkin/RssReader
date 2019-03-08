@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import rss.combinator.project.model.Tag;
+import rss.combinator.project.entities.Tag;
 import rss.combinator.project.services.LinkService;
 import rss.combinator.project.services.RssParser;
 import rss.combinator.project.services.TagService;
@@ -12,6 +12,9 @@ import rss.combinator.project.services.TagService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -30,17 +33,14 @@ public class ScheduledNews {
 
     @Scheduled(cron = "0 0 * * * *")
     public void requestFreshNews() {
-        List<Tag> tags = tagService.getAll();
-        Map<String, List<String>> map = new HashMap<>();
-        tags.forEach(tag -> map.put(tag.getName(), linkService.getAllByTag(tag)));
-        rssParser.parseRss(map);
+        rssParser.parseRss(tagService.getAll().stream()
+                .collect(Collectors.toMap(Tag::getName, linkService::getAllByTag)));
         log.info("Loaded fresh news");
     }
 
     @Scheduled(cron = "0 0 1 */2 * *")
     public void deleteOldNews() {
-        List<Tag> tags = tagService.getAll();
-        tags.forEach(tag -> rssParser.deleteFile(tag.getName()));
+        tagService.getAll().forEach(tag -> rssParser.deleteFile(tag.getName()));
     }
 
 }

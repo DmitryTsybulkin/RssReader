@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import rss.combinator.project.model.Link;
-import rss.combinator.project.model.Tag;
+import rss.combinator.project.entities.Link;
+import rss.combinator.project.entities.Tag;
 
 import java.util.List;
 import java.util.Optional;

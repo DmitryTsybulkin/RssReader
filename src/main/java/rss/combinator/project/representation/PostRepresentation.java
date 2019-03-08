@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,13 +30,11 @@ public class PostRepresentation {
     }
 
     public List<PostDTO> getByTagAndFromDate(List<String> tags, LocalDateTime from) {
-        List<PostDTO> result = getByTags(tags);
-        return getFromDate(result, from);
+        return getFromDate(getByTags(tags), from);
     }
 
     public List<PostDTO> getAllFromDate(LocalDateTime from) {
-        List<PostDTO> result = getAll();
-        return getFromDate(result, from);
+        return getFromDate(getAll(), from);
     }
 
     public List<PostDTO> getAll() {
@@ -47,6 +46,10 @@ public class PostRepresentation {
         } catch (IOException e) {
             log.error("Get all posts failed: " + e.getLocalizedMessage());
         }
+        return sorted(result);
+    }
+
+    private List<PostDTO> sorted(List<PostDTO> result) {
         result.forEach(dto -> dto.setDate(Utils.formatDate(dto.getDate())));
         Collections.sort(result);
         Collections.reverse(result);
@@ -56,25 +59,19 @@ public class PostRepresentation {
     public List<PostDTO> getByTags(List<String> tags) {
         List<PostDTO> result = new ArrayList<>();
         tags.forEach(name ->
-                result.addAll(jsonParserService.
-                        fromJson(Paths.get(absolutePath + name + ".json").toFile())));
-        result.forEach(dto -> dto.setDate(Utils.formatDate(dto.getDate())));
-        Collections.sort(result);
-        Collections.reverse(result);
-        return result;
+                result.addAll(jsonParserService.fromJson(Paths.get(absolutePath + name + ".json").toFile())));
+        return sorted(result);
     }
 
     public List<PostDTO> getFromDate(List<PostDTO> dtos, LocalDateTime from) {
-        List<PostDTO> result = new ArrayList<>();
-        if (from != null) {
-            dtos.forEach(postDTO -> {
-                LocalDateTime date = LocalDateTime.parse(postDTO.getDate(), Utils.outDateFormat);
-                if (date.isEqual(from) || date.isAfter(from)) {
-                    result.add(postDTO);
-                }
-            });
+        if (Objects.nonNull(from)) {
+            return dtos.stream()
+                    .filter(postDTO -> {
+                        LocalDateTime date = LocalDateTime.parse(postDTO.getDate(), Utils.outDateFormat);
+                        return date.isEqual(from) || date.isAfter(from);
+                    }).collect(Collectors.toList());
         }
-        return result;
+        return Collections.emptyList();
     }
 
 }

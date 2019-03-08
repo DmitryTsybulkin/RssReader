@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.junit.Before;
 import org.junit.runner.RunWith;
-import rss.combinator.project.model.Tag;
+import rss.combinator.project.entities.Tag;
 import org.mockito.junit.MockitoJUnitRunner;
 import rss.combinator.project.services.RssParser;
 import rss.combinator.project.services.TagService;
