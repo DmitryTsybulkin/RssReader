@@ -44,7 +44,7 @@ public class TagRepresentationTest {
         Files.deleteIfExists(path);
         assertTrue(Files.notExists(path));
 
-        links.add("https://www.sports.ru/rss/rubric.xml?s=208");
+        links.add("https://api.foxsports.com/v1/rss?partnerKey=zBaFxRyGKCfxBagJG9b8pqLyndmvo7UU");
     }
 
     @After

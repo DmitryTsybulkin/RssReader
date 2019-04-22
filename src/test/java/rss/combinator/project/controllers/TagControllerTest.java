@@ -53,7 +53,7 @@ public class TagControllerTest {
     public void createTag() throws Exception {
         mockMvc.perform(post("/tags/new")
                 .param("name", "sport")
-                .param("links", "https://www.sports.ru/rss/rubric.xml?s=208"))
+                .param("links", "https://api.foxsports.com/v1/rss?partnerKey=zBaFxRyGKCfxBagJG9b8pqLyndmvo7UU"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk());
 

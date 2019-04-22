@@ -25,7 +25,7 @@ public class SecurityControllerTest {
 
     @Test
     public void testRedirectWhenNotAuthenticated() throws Exception {
-        mockMvc.perform(get("/"))
+        mockMvc.perform(get("/posts"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("http://localhost/login"));
