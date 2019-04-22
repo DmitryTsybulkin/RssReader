@@ -79,9 +79,7 @@ public class RssParser {
 
     public synchronized void saveToFile(String name, List<String> json) {
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(absolutePath + name + pathSuffix))) {
-            for (String entry : json) {
-                pw.println(entry);
-            }
+            json.forEach(pw::println);
         } catch (FileNotFoundException e) {
             log.error(e.getLocalizedMessage());
         }
