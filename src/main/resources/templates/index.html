@@ -25,38 +25,37 @@
     </nav>
 </header>
 
+<div class="chips" style="width: 700px; margin-left: 30%;"></div>
+
 <main>
     <div class="container">
-        <center>
-            <div class="chips-autocomplete" style="width: 500px;"></div>
+        <div style="text-align: center;">
             <div id="content"></div>
-        </center>
+        </div>
     </div>
 </main>
-
-
-<footer>
-
-</footer>
 
 <script>
 
     $(document).ready(
         function(){
-            $.getJSON("/tags").done(function (tags) {
-                $('.chips-autocomplete').chips({
-                    secondaryPlaceholder: '',
-                    autocompleteData: function (request, response) {
-                            response($.map(tags, function (value, key) {
-                                return {
-                                    label: value.name
-                                }
-                            }));
-                        },
+            $.getJSON("/tags", function (data) {
+                var convertedData = [];
+                $.each(data, function(index, value) {
+                    convertedData.push({tag: value.name});
+                });
+                console.log(convertedData);
+                const tags = document.querySelectorAll(".chips");
+                M.Chips.init(tags, {
+                    placeholder: "Your tag",
+                    data: convertedData,
+                    limit: Infinity,
+                    autocompleteOptions: {
+                        data: convertedData,
                         limit: Infinity
+                    },
                 });
             });
-
 
             var eventSource = new EventSource("/posts");
             console.log("Open connection");

@@ -1,6 +1,5 @@
 package rss.combinator.project.controllers;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +9,6 @@ import rss.combinator.project.representation.TagRepresentation;
 import java.util.List;
 
 @RestController
-@Api(description = "Manage tags of news")
 public class TagController {
 
     private final TagRepresentation tagRepresentation;

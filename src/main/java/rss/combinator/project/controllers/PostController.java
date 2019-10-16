@@ -1,6 +1,5 @@
 package rss.combinator.project.controllers;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +14,10 @@ import rss.combinator.project.representation.PostRepresentation;
 import rss.combinator.project.services.Utils;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 @RestController
-@Api(description = "Get existing posts")
 public class PostController {
 
     private final PostRepresentation postRepresentation;
